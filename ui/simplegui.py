@@ -6,15 +6,15 @@ sg.theme('DarkAmber')
 class BudgetMenu:
     """Class representing a budget menu to get the user to
     put in new budget items."""
-    def __init__(self, known_categories=[]):
-        self._known_categories = known_categories
+    def __init__(self, categories):
+        self._categories = categories
 
     def new_budget_item(self, dn='', dp=0.0, dnt='', dc=''):
         """Displays gui, prompts user to input new budget item.
     
         """
-        default_cat = dc if not dc == '' else self._known_categories[0]
-        listbox = sg.Listbox(self._known_categories, key='category', 
+        default_cat = dc if not dc == '' else self._categories._known_categories[0]
+        listbox = sg.Listbox(self._categories._known_categories, key='category', 
                 select_mode='LISTBOX_SELECT_MODE_SINGLE', size=(40,5), 
                 default_values=default_cat)
         layout = [[sg.Text('Specify a new budget item:'), sg.InputText(key='name', default_text=dn)],
@@ -28,7 +28,7 @@ class BudgetMenu:
             if event == 'OK':
                 break
             if event == 'Create new category':
-                self.new_category()
+                self.new_category_menu()
                 # Update the category list
                 listbox.Update(values=self._known_categories)
                 window.Refresh()
@@ -43,7 +43,7 @@ class BudgetMenu:
                 values['price'], values['note'])
         return expense
 
-    def new_category(self):
+    def new_category_menu(self):
         """Menu prompting the user for a new category.
 
         """
@@ -51,60 +51,33 @@ class BudgetMenu:
         window = sg.Window('New category', layout=layout)
         event, values = window.Read()
         window.Close()
-        self._known_categories.append(values['category'])
+        self._categories.new_category(values['category'])
 
 class MainMenu:
     """Main menu showing the default view of the persons budget."""
-    def __init__(self, budget_m, expenses):
-        """Create a menu object.
-        :budget_m: budget menu object to call for new budget
-        :expenses: array of expense objects that have been created
-        """
+    def __init__(self, budget_m, budget):
         self._budget_m = budget_m
-        self._expenses = expenses
-        self._expensen = [ex._name for ex in expenses]
-        self._total_spending = sum(expenses)
-
-    def insert_new_expense(self, new_expense):
-        """Insert a new expense into the list and update all values.
-
-        :new_expense: New expense object to add to the list
-
-        """
-        self._expenses.insert(0, new_expense)
-        self._expensen.insert(0, new_expense._name)
-        self._total_spending += new_expense._price
-
-    def remove_expense(self, old_expense):
-        """Removes a expense from the lists.
-
-        :old_expense: TODO
-        :returns: TODO
-
-        """
-        self._expenses.remove(old_expense)
-        self._expensen.remove(old_expense._name)
-        self._total_spending -= old_expense._price 
+        self._budget = budget
 
     def display(self):
         """Display the main menu.
 
         """
-        listbox = sg.Listbox(self._expensen, key='expense', 
+        listbox = sg.Listbox(self._budget._expensen, key='expense', 
                 select_mode='LISTBOX_SELECT_MODE_SINGLE', size=(40, 5), 
-                default_values=self._expensen[0])
-        budget_tracker = sg.Text(self._total_spending)
+                default_values=self._budget._expensen[0])
+        budget_tracker = sg.Text(self._budget._total_spending)
         layout = [[sg.Text(f'Your current spending: '), budget_tracker],
                 [sg.Text('The latest expenses.'), listbox],
-                [sg.Button('Add new expense'), sg.Button('Edit Expense'), sg.Button('Cancel')]]
+                [sg.Button('Add new expense'), sg.Button('Edit Expense'),  sg.Button('Delete Expense'), sg.Button('Cancel')]]
         window = sg.Window('Personal Budget', layout=layout)
 
         def refresh_window():
             """Refresh the info on the window.
 
             """
-            listbox.Update(values=self._expensen)
-            budget_tracker.Update(value=self._total_spending)
+            listbox.Update(values=self._budget._expensen)
+            budget_tracker.Update(value=self._budget._total_spending)
 
         while True:
             event, values = window.read()
@@ -114,10 +87,17 @@ class MainMenu:
             if event == 'Edit Expense':
                 self.edit_budget_item(values['expense'][0]) 
                 refresh_window()
+            
+            if event == 'Delete Expense':
+                sel_exp = values['expense'][0]
+                sel_exp = [ex for ex in self._expenses 
+                        if ex._name == sel_exp][0]
+                self._budget.remove_expense(sel_exp)
+                refresh_window()
 
             if event == 'Add new expense':
                 nexpv = self._budget_m.new_budget_item() # values for new
-                self.insert_new_expense(nexpv)
+                self._budget.insert_new_expense(nexpv)
                 refresh_window()
     
     def edit_budget_item(self, expensen):
@@ -127,10 +107,10 @@ class MainMenu:
         :expensen: Name of the selected expense
         """
         # Select the right expense object.
-        expense = [ex for ex in self._expenses if ex._name == expensen][0]
+        expense = [ex for ex in self._budget._expenses if ex._name == expensen][0]
         name, price = expense._name, expense._price
         note, cat   = expense._note, expense._category
 
         self.remove_expense(expense) # Remove the edited expense
         expense = self._budget_m.new_budget_item(dn=name, dp=price, dnt=note, dc=cat)
-        self.insert_new_expense(expense) # Update all the values
+        self._budget.insert_new_expense(expense) # Update all the values
