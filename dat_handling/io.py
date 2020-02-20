@@ -1,4 +1,5 @@
 from budgeting import expense as ex
+from datetime import datetime
 
 def load_list_from_txt(fn='./data/categories.csv'):
     """Read a list from a text file.
@@ -24,8 +25,11 @@ def load_expenses(sep=';', fn='./data/expenses.csv'):
             expenses.append(l.split(sep))
 
     # Create the expense objects and return them
-    expenses = [ex.expense(*l) for l in expenses]
-    return expenses
+    nexpenses = []
+    for l in expenses:
+        date = datetime.fromisoformat(l[-1])
+        nexpenses.append(ex.expense(*l[:-1], date))
+    return nexpenses
 
 def save_budget(expenses, fn='./data/expenses.csv', sep=';'):
     """Save a list of expense objects to file.
@@ -34,7 +38,7 @@ def save_budget(expenses, fn='./data/expenses.csv', sep=';'):
     """
     # Add newlines and keep correct format
     lines = [sep.join([exp._name, exp._category, str(exp._price), 
-            exp._note]) + '\n' for exp in expenses]
+            exp._note, str(exp._date)]) + '\n' for exp in expenses]
     with open(fn, 'w') as f:
         # Dump the expenses as csv data
         f.writelines(lines)

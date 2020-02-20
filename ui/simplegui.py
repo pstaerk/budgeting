@@ -1,5 +1,6 @@
 import PySimpleGUI as sg
 from budgeting import expense as ex
+import datetime
 
 sg.theme('DarkAmber')
 
@@ -40,7 +41,7 @@ class BudgetMenu:
 
         # With these values create a new expense object and pass it back.
         expense = ex.expense(values['name'], values['category'],
-                values['price'], values['note'])
+                values['price'], values['note'], datetime.datetime.now())
         return expense
 
     def new_category_menu(self):
@@ -90,7 +91,7 @@ class MainMenu:
             
             if event == 'Delete Expense':
                 sel_exp = values['expense'][0]
-                sel_exp = [ex for ex in self._expenses 
+                sel_exp = [ex for ex in self._budget._expenses 
                         if ex._name == sel_exp][0]
                 self._budget.remove_expense(sel_exp)
                 refresh_window()
