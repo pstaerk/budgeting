@@ -1,4 +1,4 @@
-from budgeting import expense as ex
+from budgeting.budget import expense as ex
 from datetime import datetime
 
 def load_list_from_txt(fn='./data/categories.csv'):

@@ -4,10 +4,10 @@ Description: Super simple budgeting apps that allow the users to keep
 track of expenses, without much clutter.
 """
 
-from ui import simplegui as ui
-from dat_handling import io
-from budgeting import expense as ex
-from budgeting import budget as bd
+from budgeting.ui import simplegui as ui
+from budgeting.dat_handling import io
+from budgeting.budget import expense as ex
+from budgeting.budget import budget as bd
 
 def main():
     """Starting the main (gui) app.

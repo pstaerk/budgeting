@@ -1,5 +1,5 @@
 import PySimpleGUI as sg
-from budgeting import expense as ex
+from budgeting.budget import expense as ex
 import datetime
 
 sg.theme('DarkAmber')
@@ -31,7 +31,7 @@ class BudgetMenu:
             if event == 'Create new category':
                 self.new_category_menu()
                 # Update the category list
-                listbox.Update(values=self._known_categories)
+                listbox.Update(values=self._categories._known_categories)
                 window.Refresh()
         window.Close()
 
