@@ -5,5 +5,5 @@ The idea is to write a extremely minimal infrastructure with simple ui that can 
 
 
 ## Todos
- - [ ] Integrate date/time data.
+ - [x] Integrate date/time data.
  - [ ] App integration
