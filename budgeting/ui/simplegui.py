@@ -1,6 +1,9 @@
 import PySimpleGUI as sg
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+import matplotlib.pyplot as plt
 from budgeting.budget import expense as ex
 import datetime
+import numpy as np
 
 sg.theme('DarkAmber')
 
@@ -64,14 +67,19 @@ class MainMenu:
         """Display the main menu.
 
         """
+        dates, prices = self._budget.get_dates_and_prices()
+        canvas, fig = plot_expenses(dates, prices)
+
         listbox = sg.Listbox(self._budget._expensen, key='expense', 
                 select_mode='LISTBOX_SELECT_MODE_SINGLE', size=(40, 5), 
                 default_values=self._budget._expensen[0])
         budget_tracker = sg.Text(self._budget._total_spending)
         layout = [[sg.Text(f'Your current spending: '), budget_tracker],
                 [sg.Text('The latest expenses.'), listbox],
-                [sg.Button('Add new expense'), sg.Button('Edit Expense'),  sg.Button('Delete Expense'), sg.Button('Cancel')]]
-        window = sg.Window('Personal Budget', layout=layout)
+                [sg.Button('Add new expense'), sg.Button('Edit Expense'),  sg.Button('Delete Expense'), sg.Button('Cancel')],
+                [canvas]]
+        window = sg.Window('Personal Budget', layout=layout).Finalize()
+        fig_photo = draw_figure(window['canvas'].TKCanvas, fig)
 
         def refresh_window():
             """Refresh the info on the window.
@@ -115,3 +123,30 @@ class MainMenu:
         self.remove_expense(expense) # Remove the edited expense
         expense = self._budget_m.new_budget_item(dn=name, dp=price, dnt=note, dc=cat)
         self._budget.insert_new_expense(expense) # Update all the values
+
+def draw_figure(canvas, figure, loc=(0, 0)):
+    """Helper function from demos at PySimpleGUI repo.
+    """
+    figure_canvas_agg = FigureCanvasTkAgg(figure, canvas)
+    figure_canvas_agg.draw()
+    figure_canvas_agg.get_tk_widget().pack(side='top', fill='both', expand=1)
+    return figure_canvas_agg
+    
+
+def plot_expenses(dates, expenses, starting=0):
+    """Plot some kind of visual representation of all expenses.
+
+    :dates: x-data, datetime objects corresponding to the time of the expenses
+    :expenses: array of costs of each expense
+    """
+
+    # Test:
+    fig, ax = plt.subplots()
+    plt.bar(dates, expenses)
+    plt.xlabel('Date')
+    plt.ylabel('Expense [€]')
+    
+    figure_x, figure_y, figure_w, figure_h = fig.bbox.bounds
+    canvas = sg.Canvas(size=(figure_w, figure_h), key='canvas')
+    return canvas, fig
+    

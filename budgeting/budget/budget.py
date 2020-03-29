@@ -1,7 +1,8 @@
 class Categories:
     """Class representing categories"""
-    def __init__(self, known_categories=[]):
-        self._known_categories = known_categories
+    def __init__(self, known_categories=None):
+        if None: self._known_categories = []
+        else: self._known_categories = known_categories
 
     def new_category(self, category):
         """Append a new category.
@@ -41,3 +42,12 @@ class Budget:
         self._expenses.remove(old_expense)
         self._expensen.remove(old_expense._name)
         self._total_spending -= old_expense._price 
+
+    def get_dates_and_prices(self):
+        """Utility to get the dates and expenses of this budget object.
+        :returns: dates, expenses
+
+        """
+        dates = [e._date for e in self._expenses]
+        prices = [e._price for e in self._expenses]
+        return dates, prices
