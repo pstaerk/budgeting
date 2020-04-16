@@ -7,3 +7,4 @@ The idea is to write a extremely minimal infrastructure with simple ui that can 
 ## Todos
  - [x] Integrate date/time data.
  - [ ] App integration
+ - [ ] Add recurring expenses/system for that
