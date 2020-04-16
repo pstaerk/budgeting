@@ -68,7 +68,7 @@ class MainMenu:
 
         """
         dates, prices = self._budget.get_dates_and_prices()
-        canvas, fig = plot_expenses(dates, prices)
+        canvas, fig, rects = plot_expenses(dates, prices)
 
         listbox = sg.Listbox(self._budget._expensen, key='expense', 
                 select_mode='LISTBOX_SELECT_MODE_SINGLE', size=(40, 5), 
@@ -141,12 +141,13 @@ def plot_expenses(dates, expenses, starting=0):
     """
 
     # Test:
+    plt.ion()
     fig, ax = plt.subplots()
-    plt.bar(dates, expenses)
+    rects = plt.bar(dates, expenses)
     plt.xlabel('Date')
     plt.ylabel('Expense [€]')
     
     figure_x, figure_y, figure_w, figure_h = fig.bbox.bounds
     canvas = sg.Canvas(size=(figure_w, figure_h), key='canvas')
-    return canvas, fig
+    return canvas, fig, rects
     
