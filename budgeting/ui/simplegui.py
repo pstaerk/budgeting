@@ -139,13 +139,13 @@ def plot_expenses(dates, expenses, starting=0):
     :dates: x-data, datetime objects corresponding to the time of the expenses
     :expenses: array of costs of each expense
     """
-
-    # Test:
+    plt.xkcd()
     plt.ion()
     fig, ax = plt.subplots()
     rects = plt.bar(dates, expenses)
     plt.xlabel('Date')
     plt.ylabel('Expense [€]')
+    plt.tight_layout()
     
     figure_x, figure_y, figure_w, figure_h = fig.bbox.bounds
     canvas = sg.Canvas(size=(figure_w, figure_h), key='canvas')
